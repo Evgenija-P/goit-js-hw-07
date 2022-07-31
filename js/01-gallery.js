@@ -2,6 +2,7 @@ import { galleryItems } from "./gallery-items.js";
 // Change code below this line
 
 const divGallery = document.querySelector(`.gallery`);
+let instance;
 
 //------- Создаем разметку -------
 const galleryImages = galleryItems
@@ -17,27 +18,35 @@ alt="${item.description}"/>
   )
   .join("");
 
-divGallery.insertAdjacentHTML("afterbegin", galleryImages);
-
 //------- Открытие карточки -------
 const openImage = (event) => {
   event.preventDefault();
 
   // -----------Модалка запуск-----------
-  const instance = basicLightbox.create(
+  instance = basicLightbox.create(
     `<div class="modal">
         <img src = "${event.target.dataset.source}" />
     </div>`,
     {
       onShow: (instance) => {
-        document.addEventListener("keydown", (event) => {
-          if (event.key === `Escape`) {
-            instance.close();
-          }
-        });
+        window.addEventListener("keydown", escClose);
+      },
+      onClose: (instance) => {
+        window.removeEventListener("keydown", escClose);
       },
     }
   );
   instance.show();
 };
+
+function modalClose() {
+  instance.close();
+}
+
+function escClose(event) {
+  if (event.code === `Escape`) {
+    modalClose();
+  }
+}
 divGallery.addEventListener("click", openImage);
+divGallery.insertAdjacentHTML("afterbegin", galleryImages);
